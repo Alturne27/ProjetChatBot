@@ -12,7 +12,7 @@ def lectureTestDB():
     Fonction pour lire une base de données SQLite et afficher le nombre de lignes par table.
     """
     # Remplacez 'chemin/vers/fichier.sqlite3' par le chemin de votre fichier sqlite3
-    conn = sqlite3.connect(r'C:\Users\adelu\PycharmProjects\ProjetChatBot\chroma_db\chroma.sqlite3')
+    conn = sqlite3.connect("chroma-db/chroma.sqlite3")
     cursor = conn.cursor()
 
     tables = [
@@ -48,12 +48,13 @@ def lectureTestDB():
             print(f"Erreur sur {table} : {e}")
 
     # Exécution de la requête pour récupérer les 10 premiers enregistrements
-    cursor.execute("SELECT * FROM embedding_metadata where key = 'chroma:document'")
+    cursor.execute("SELECT DISTINCT * FROM embedding_metadata where key = 'chroma:document'")
     rows = cursor.fetchall()
 
+    print(len(rows))
     # Affichage des résultats
-    for row in rows:
-        print(row)
+    # for row in rows:
+    #     print(row)
 
     conn.close()
     pass
@@ -73,14 +74,16 @@ def query_rag(query_text):
 
 
     # Prepare the database
-    db = Chroma(persist_directory="C:/Users/adelu/PycharmProjects/ProjetChatBot/chroma_db", embedding_function=OllamaEmbeddings(model="nomic-embed-text"))
+    db = Chroma(persist_directory="chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url="http://localhost:11434"))
 
     retriever = db.as_retriever()
-    docs = retriever.invoke(query_text, k=10)
+    docs = retriever.invoke(query_text, k=5)
     print("Documents fetched from database : " + str(len(docs)))
     return docs
 
-query_text = "Cortana"
+
+lectureTestDB()
+query_text = "Quel VPN choisir ?"
 
 results = query_rag(query_text)
 

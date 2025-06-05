@@ -10,8 +10,46 @@ services :
         POSTGRES_DB: PGDB
       volumes:
         - ./init-db:/docker-entrypoint-initdb.d
-        - pgdata:/var/lib/postgresql/data
+        - ./pgdata:/var/lib/postgresql/data
         
       restart: unless-stopped
-volumes:
-  pgdata: 
+    
+    ollama:
+      container_name: ollama
+      pull_policy: always
+      image: ollama/ollama:latest
+      tty: true
+      ports:
+        - 11434:11434
+      deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+                count: all 
+                capabilities: [gpu]
+
+      volumes:
+        - ./ollama/ollama:/root/.ollama
+        - ./build/init.sh:/init.sh
+      networks:
+        - ollama-docker
+      restart: always
+      entrypoint: ["/usr/bin/bash", "/init.sh"]
+
+    rag:
+      container_name : rag
+      build:
+        dockerfile: ./build/DockerfileRAG
+      volumes:
+        - ./data:/app/data
+        - ./chroma-db:/app/chroma-db
+      networks:
+        - ollama-docker
+      tty : true
+
+      restart: always
+
+networks:
+  ollama-docker:
+    driver: bridge

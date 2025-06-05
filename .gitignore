@@ -1,2 +1,8 @@
-testRAG
-.idea
+Include
+Lib
+Scripts
+pyvenv.cfg
+data
+pgdata
+ollama
+chroma-db
