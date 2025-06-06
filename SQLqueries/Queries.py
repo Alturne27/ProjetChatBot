@@ -1,5 +1,6 @@
 import sqlite3
 import psycopg
+import json
 
 '''
     Fonction pour créer une connexion à la database postgreSQL
@@ -9,33 +10,6 @@ import psycopg
 def connectPostGre():
     return psycopg.connect("dbname=PGDB user=user password=data host=localhost port=5432")
 
-'''def test():
-
-    conn = connectPostGre()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = 'public'
-              AND table_type = 'BASE TABLE';
-        """)
-        tables = cursor.fetchall()
-        for table in tables:
-            print(table[0])  # table[0] contient le nom
-    finally:
-        cursor.close()
-        conn.close()'''
-
-
-'''
-    Fonction pour récupérer les données de la base de données sqlite avec les documents.
-    Prend en entrée le mot/sujet de ce que l'on recherche
-    Retourne les fichiers pertinents à notre recherche
-'''
-def fetchDocs():
-    
-    return 0
 
 '''
     Fonction pour enregistrer un client dans la base de données
@@ -118,8 +92,9 @@ def fetchMsg(session_id):
         cursor.close()
         conn.close()
 
-
-
+x=fetchMsg(1)
+jsonListe=json.dumps(x)
+print (jsonListe)
 '''
     Fonction qui récupère les noms des sessions d'un client depuis la base de données et les retourne
     Prend en entrée : l'ID du client
