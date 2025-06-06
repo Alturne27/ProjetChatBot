@@ -3,7 +3,7 @@ FROM python:3
 WORKDIR /app
 
 # pip install
-COPY requirements.txt /app
+COPY rag-build/requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py /app
+COPY rag-build/main.py /app

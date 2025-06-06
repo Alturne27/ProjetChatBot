@@ -82,8 +82,8 @@ def query_rag(query_text):
     return docs
 
 
-lectureTestDB()
-query_text = "Quel VPN choisir ?"
+# lectureTestDB()
+query_text = "iptables"
 
 results = query_rag(query_text)
 

@@ -6,3 +6,4 @@ data
 pgdata
 ollama
 chroma-db
+easy-dataset-db

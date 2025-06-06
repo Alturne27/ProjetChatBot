@@ -10,8 +10,7 @@ sleep 5
 
 echo "🔴 Retrieving model..."
 ollama pull nomic-embed-text
-# ollama pull dorian2b/vera
+ollama pull gemma3
 echo "🟢 Done!"
 
-# Wait for Ollama process to finish.
 wait $pid

@@ -1,54 +1,65 @@
 services :
-    postgres:
-      image: postgres:latest
-      container_name: postgres
-      ports:
-        - "5432:5432"
-      environment:
-        POSTGRES_USER: user
-        POSTGRES_PASSWORD: data
-        POSTGRES_DB: PGDB
-      volumes:
-        - ./init-db:/docker-entrypoint-initdb.d
-        - ./pgdata:/var/lib/postgresql/data
-        
-      restart: unless-stopped
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: data
+      POSTGRES_DB: PGDB
+    volumes:
+      - ./postgre-build:/docker-entrypoint-initdb.d
+      - ./pgdata:/var/lib/postgresql/data
+      
+    restart: unless-stopped
     
-    ollama:
-      container_name: ollama
-      pull_policy: always
-      image: ollama/ollama:latest
-      tty: true
-      ports:
-        - 11434:11434
-      deploy:
-        resources:
-          reservations:
-            devices:
-              - driver: nvidia
-                count: all 
-                capabilities: [gpu]
+  ollama:
+    container_name: ollama
+    pull_policy: always
+    image: ollama/ollama:latest
+    tty: true
+    ports:
+      - 11434:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all 
+              capabilities: [gpu]
 
-      volumes:
-        - ./ollama/ollama:/root/.ollama
-        - ./build/init.sh:/init.sh
-      networks:
-        - ollama-docker
-      restart: always
-      entrypoint: ["/usr/bin/bash", "/init.sh"]
+    volumes:
+      - ./ollama/ollama:/root/.ollama
+      - ./ollama-build/init.sh:/init.sh
+    networks:
+      - ollama-docker
+    restart: always
+    entrypoint: ["/usr/bin/bash", "/init.sh"]
 
-    rag:
-      container_name : rag
-      build:
-        dockerfile: ./build/DockerfileRAG
-      volumes:
-        - ./data:/app/data
-        - ./chroma-db:/app/chroma-db
-      networks:
-        - ollama-docker
-      tty : true
+  rag:
+    container_name : rag
+    build:
+      dockerfile: ./rag-build/DockerfileRAG
+    volumes:
+      - ./data:/app/data
+      - ./chroma-db:/app/chroma-db
+    networks:
+      - ollama-docker
+    tty : true
 
-      restart: always
+    restart: always
+    
+  easy-dataset:
+    image: ghcr.io/conardli/easy-dataset
+    container_name: easy-dataset
+    ports:
+      - '1717:1717'
+    volumes:
+      - ./easy-dataset-db:/app/local-db
+    restart: unless-stopped
+    networks:
+      - ollama-docker
 
 networks:
   ollama-docker:
