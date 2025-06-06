@@ -5,7 +5,7 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFDirectoryLoader  # Nouveau import pour le loader PDF
 import numpy as np
 
-
+model_url = "http://ollama:11434"
 
 def lectureTestDB():
     """
@@ -74,7 +74,7 @@ def query_rag(query_text):
 
 
     # Prepare the database
-    db = Chroma(persist_directory="chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url="http://localhost:11434"))
+    db = Chroma(persist_directory="chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url=model_url))
 
     retriever = db.as_retriever()
     docs = retriever.invoke(query_text, k=5)

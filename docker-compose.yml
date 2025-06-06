@@ -62,6 +62,7 @@ services :
       - ollama-docker
 
   api:
+    container_name: api
     build:
       dockerfile: ./api-build/Dockerfile
     volumes:
