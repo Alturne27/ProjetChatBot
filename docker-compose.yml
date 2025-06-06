@@ -3,7 +3,7 @@ services :
     image: postgres:latest
     container_name: postgres
     ports:
-      - "5432:5432"
+      - 5432:5432
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: data
@@ -40,7 +40,7 @@ services :
   rag:
     container_name : rag
     build:
-      dockerfile: ./rag-build/DockerfileRAG
+      dockerfile: ./rag-build/Dockerfile
     volumes:
       - ./data:/app/data
       - ./chroma-db:/app/chroma-db
@@ -60,6 +60,18 @@ services :
     restart: unless-stopped
     networks:
       - ollama-docker
+
+  api:
+    build:
+      dockerfile: ./api-build/Dockerfile
+    volumes:
+      - ./api:/app
+    ports:
+      - 80:80
+    restart: unless-stopped
+    networks:
+      - ollama-docker
+    tty : true
 
 networks:
   ollama-docker:
