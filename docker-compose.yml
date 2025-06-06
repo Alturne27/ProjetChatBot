@@ -37,11 +37,14 @@ services :
     restart: always
     entrypoint: ["/usr/bin/bash", "/init.sh"]
 
-  rag:
-    container_name : rag
+  api:
+    container_name : api
     build:
-      dockerfile: ./rag-build/Dockerfile
+      dockerfile: ./api-build/Dockerfile
+    ports:
+      - 80:80
     volumes:
+      - ./api:/app
       - ./data:/app/data
       - ./chroma-db:/app/chroma-db
     networks:
@@ -61,18 +64,6 @@ services :
     networks:
       - ollama-docker
 
-  api:
-    container_name: api
-    build:
-      dockerfile: ./api-build/Dockerfile
-    volumes:
-      - ./api:/app
-    ports:
-      - 80:80
-    restart: unless-stopped
-    networks:
-      - ollama-docker
-    tty : true
 
 networks:
   ollama-docker:
