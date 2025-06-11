@@ -15,6 +15,22 @@ input::placeholder {
   font-family: "Press Start 2P", system-ui, -apple-system, sans-serif;
 }
 
+.loader {
+  height: 40px;
+  width: 20%;
+  text-align: center;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/*
+  Set the color of the icon
+*/
+svg path,
+svg rect {
+  fill: #2b4cc4;
+}
+
 @theme {
   --color-background-site: #060606;
   --color-background-site-secondary: #1e1e1e;
