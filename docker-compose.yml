@@ -11,7 +11,8 @@ services :
     volumes:
       - ./postgre-build:/docker-entrypoint-initdb.d
       - ./pgdata:/var/lib/postgresql/data
-      
+    networks:
+      - ollama-docker
     restart: unless-stopped
     
   ollama:
@@ -28,10 +29,12 @@ services :
             - driver: nvidia
               count: all 
               capabilities: [gpu]
-
+    environment:
+      OLLAMA_KEEP_ALIVE: -1
     volumes:
       - ./ollama/ollama:/root/.ollama
       - ./ollama-build/init.sh:/init.sh
+      - ./ollama-build/Modelfile:/Modelfile
     networks:
       - ollama-docker
     restart: always
@@ -41,12 +44,16 @@ services :
     container_name : api
     build:
       dockerfile: ./api-build/Dockerfile
+    environment:
+      DB_USER: user
+      DB_PASSWORD: data
+      DB_NAME: PGDB
     ports:
       - 80:80
     volumes:
       - ./api:/app
-      - ./data:/app/data
-      - ./chroma-db:/app/chroma-db
+      - ./data:/data
+      - ./chroma-db:/chroma-db
     networks:
       - ollama-docker
     tty : true

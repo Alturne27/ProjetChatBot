@@ -10,7 +10,8 @@ sleep 5
 
 echo "🔴 Retrieving model..."
 ollama pull nomic-embed-text
-ollama pull gemma3
+ollama create cyber-model -f Modelfile
+ollama run cyber-model
 echo "🟢 Done!"
 
 wait $pid
