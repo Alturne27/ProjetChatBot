@@ -10,6 +10,7 @@ import MessageIA from "@/components/ui/custom/MessageIA";
 import ChatHistory from "@/components/ui/custom/ChatHistory";
 import SignIn from "@/components/auth/sign-in";
 import Loading from "@/components/ui/custom/Loading";
+import { signOut } from "next-auth/react";
 
 export default function Home() {
   const [isPanelVisible, setPanelVisible] = useState(true);
@@ -51,7 +52,7 @@ export default function Home() {
 
   if (status === "unauthenticated") {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-screen gap-5">
         <p className="text-2xl text-white font-title">
           Veuillez vous connecter pour accéder au chatbot.
         </p>
@@ -91,10 +92,21 @@ export default function Home() {
             }}
           />
         </div>
+        <div
+          title="Déconnexion"
+          className="absolute top-0 right-0 flex justify-end items-center p-5 bg-transparent"
+          onClick={() => signOut({ redirectTo: "/" })}
+        >
+          <img
+            src="images/logout.png"
+            alt=""
+            className="w-8 h-8 cursor-pointer"
+          />
+        </div>
         {newChatSession === null ? (
-          <div className="flex items-center justify-center h-20">
-            <p className="text-white text-xl font-title">
-              Bienvenue dans votre nouveau chat !
+          <div className="flex items-center justify-center h-20 px-5 lg:p-0 ">
+            <p className="text-white text-xl font-title text-center ">
+              Bienvenue dans votre nouveau chat!
             </p>
           </div>
         ) : (
