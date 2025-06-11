@@ -39,6 +39,7 @@ const SideChat = ({
   };
   return (
     <div
+      title={chatSessions.find((s: ChatSession) => s.id === session.id)?.title}
       className="group flex items-center gap-1 justify-between hover:bg-gray-500/30 py-0.5 px-3 m-1 rounded-xl transition-bg duration-200"
       onClick={() => onClickEvent(session)}
     >

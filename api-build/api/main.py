@@ -16,7 +16,15 @@ from cuid2 import cuid_wrapper
 
 cuid_generator: Callable[[], str] = cuid_wrapper()
 
-app = FastAPI()
+model_url = "http://chatbot-ollama:11434"
+
+chroma_db = Chroma(persist_directory="../chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url=model_url))
+
+ollama_client = Client(
+    host=model_url
+)
+
+ollama_client.chat(model='cyber-model')
 
 app = FastAPI()
 
@@ -30,14 +38,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-model_url = "http://chatbot-ollama:11434"
-
-chroma_db = Chroma(persist_directory="../chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url=model_url))
-
-ollama_client = Client(
-    host=model_url
 )
 
 def get_rag(question : str):

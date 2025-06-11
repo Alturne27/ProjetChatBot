@@ -3,6 +3,7 @@
 import SideChat from "@/components/ui/custom/sidechat";
 import { forwardRef, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import Loading from "./Loading";
 
 interface SidebarProps {
   isPanelVisible: boolean;
@@ -81,8 +82,8 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
               <hr className="mx-4 border-t-5 border-white fill-white my-4" />
               <div className="overflow-y-auto max-h-150 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent">
                 {loading ? (
-                  <div className="flex items-center justify-center h-20">
-                    <p className="text-white">Chargement des sessions...</p>
+                  <div className="flex flex-col items-center justify-center mt-20">
+                    <Loading />
                   </div>
                 ) : (
                   chatSessions.map((s) => (

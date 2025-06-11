@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BarryGPT",
+  title: "CariBot",
   description: "L'IA de l'INSA qui répond à vos questions cyber !",
 };
 
