@@ -1,4 +1,4 @@
-services :
+services:
   chatbot-front:
     container_name: chatbot-front
     build:
@@ -20,7 +20,10 @@ services :
     networks:
       - chatbot-network
     depends_on:
-      - chatbot-db
+      chatbot-db:
+        condition: service_healthy
+      chatbot-ollama:
+        condition: service_healthy
 
   chatbot-db:
     container_name: chatbot-db
@@ -31,11 +34,17 @@ services :
     ports:
       - 5432:5432
     volumes:
-     - ./pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     networks:
       - chatbot-network
     restart: unless-stopped
-    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 2s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
   chatbot-ollama:
     container_name: chatbot-ollama
     pull_policy: always
@@ -48,7 +57,7 @@ services :
         reservations:
           devices:
             - driver: nvidia
-              count: all 
+              count: all
               capabilities: [gpu]
     environment:
       OLLAMA_KEEP_ALIVE: -1
@@ -58,11 +67,21 @@ services :
       - ./ollama-build/Modelfile:/Modelfile
     networks:
       - chatbot-network
-    restart: always
+    restart: unless-stopped
     entrypoint: ["/usr/bin/bash", "/init.sh"]
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - |
+          test -f /tmp/ollama_ready && \
+          bash -c '</dev/tcp/localhost/11434'  # Checks if Ollama is accepting connections
+      interval: 10s
+      timeout: 10s
+      retries: 100
+      start_period: 10s
 
   chatbot-api:
-    container_name : chatbot-api
+    container_name: chatbot-api
     build:
       context: ./api-build/
       dockerfile: Dockerfile
@@ -76,12 +95,13 @@ services :
       - ./api-build/chroma-db:/chroma-db
     networks:
       - chatbot-network
-    tty : true
-    restart: always
+    tty: true
+    restart: unless-stopped
     depends_on:
-      - chatbot-front
-      - chatbot-db
-      - chatbot-ollama
+      chatbot-db:
+        condition: service_healthy
+      chatbot-ollama:
+        condition: service_healthy
 
 networks:
   chatbot-network:
