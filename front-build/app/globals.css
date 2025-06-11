@@ -17,7 +17,6 @@ input::placeholder {
 
 .loader {
   height: 40px;
-  width: 20%;
   text-align: center;
   display: inline-block;
   vertical-align: bottom;
