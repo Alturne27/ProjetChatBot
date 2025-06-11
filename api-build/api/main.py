@@ -32,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model_url = "http://ollama:11434"
+model_url = "http://chatbot-ollama:11434"
 
 chroma_db = Chroma(persist_directory="../chroma-db", embedding_function=OllamaEmbeddings(model="nomic-embed-text",base_url=model_url))
 

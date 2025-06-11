@@ -18,7 +18,7 @@ services :
     ports:
       - 3000:3000
     networks:
-      - ollama-docker
+      - chatbot-network
     depends_on:
       - chatbot-db
 
@@ -33,11 +33,11 @@ services :
     volumes:
      - ./pgdata:/var/lib/postgresql/data
     networks:
-      - ollama-docker
+      - chatbot-network
     restart: unless-stopped
     
-  ollama:
-    container_name: ollama
+  chatbot-ollama:
+    container_name: chatbot-ollama
     pull_policy: always
     image: ollama/ollama:latest
     tty: true
@@ -53,16 +53,16 @@ services :
     environment:
       OLLAMA_KEEP_ALIVE: -1
     volumes:
-      - ./ollama/ollama:/root/.ollama
+      - ./ollama-build/ollama:/root/.ollama
       - ./ollama-build/init.sh:/init.sh
       - ./ollama-build/Modelfile:/Modelfile
     networks:
-      - ollama-docker
+      - chatbot-network
     restart: always
     entrypoint: ["/usr/bin/bash", "/init.sh"]
 
-  api:
-    container_name : api
+  chatbot-api:
+    container_name : chatbot-api
     build:
       context: ./api-build/
       dockerfile: Dockerfile
@@ -71,31 +71,20 @@ services :
     ports:
       - 80:80
     volumes:
-      - ./api:/app
-      - ./data:/data
-      - ./chroma-db:/chroma-db
+      - ./api-build/api:/app
+      - ./api-build/data:/data
+      - ./api-build/chroma-db:/chroma-db
     networks:
-      - ollama-docker
+      - chatbot-network
     tty : true
     restart: always
     depends_on:
       - chatbot-front
       - chatbot-db
-    
-  easy-dataset:
-    image: ghcr.io/conardli/easy-dataset
-    container_name: easy-dataset
-    ports:
-      - '1717:1717'
-    volumes:
-      - ./easy-dataset-db:/app/local-db
-    restart: unless-stopped
-    networks:
-      - ollama-docker
-
+      - chatbot-ollama
 
 networks:
-  ollama-docker:
+  chatbot-network:
     driver: bridge
 
 volumes:
