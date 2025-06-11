@@ -7,3 +7,4 @@ pgdata
 ollama
 chroma-db
 easy-dataset-db
+__pycache__
