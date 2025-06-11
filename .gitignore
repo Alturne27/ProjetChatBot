@@ -8,3 +8,4 @@ ollama
 chroma-db
 easy-dataset-db
 __pycache__
+.env*

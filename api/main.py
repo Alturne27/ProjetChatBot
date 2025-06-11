@@ -2,9 +2,8 @@ from db import engine
 from typing import Annotated
 
 from fastapi import FastAPI, Header, HTTPException
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from sqlmodel import Session, select
+from fastapi.middleware.cors import CORSMiddleware
 
 from langchain_chroma import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
@@ -18,6 +17,20 @@ from cuid2 import cuid_wrapper
 cuid_generator: Callable[[], str] = cuid_wrapper()
 
 app = FastAPI()
+
+app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 model_url = "http://ollama:11434"
 
@@ -37,12 +50,12 @@ def get_rag(question : str):
 
 def get_context(session_id : str):
     with Session(engine) as session:
-        statement = select(ChatMessage).where(ChatMessage.chatSessionId == session_id).order_by(ChatMessage.createdAt.desc()).offset(1).limit(5)
+        statement = select(ChatMessage).where(ChatMessage.chatSessionId == session_id).order_by(ChatMessage.createdAt.desc()).offset(1).limit(2)
         results = session.exec(statement)
-        messages = []
+        context = ""
         for element in results:
-            messages.append({"role" : element.role, "content" : element.message})
-        return messages
+            context += element.role +" :"+ element.message + "\n\n"
+        return context
 
 def save_chat(content: str,session_id: str):
     with Session(engine) as session:
@@ -67,7 +80,7 @@ def sendReponse(chat : ChatQuestion = None, session_id: Annotated[str | None, He
         raise HTTPException(status_code=500, detail="No Session ID given")
     if not chat:
         raise HTTPException(status_code=500, detail="No question given")
-    messages = get_context(session_id = session_id)
+    context = get_context(session_id = session_id)
     print("Messages fetched")
     documents = get_rag(question = chat.content)
     print("Document fetched")
@@ -75,44 +88,43 @@ def sendReponse(chat : ChatQuestion = None, session_id: Annotated[str | None, He
     newChat = {
         "role":"user",
         "content":f"""
-            Tu es un assistant intelligent. Pour chaque question, tu dois choisir la meilleure source d’information entres tes propres connaissances générales et les documents fournis ci-dessous.
+            Tu es un assistant intelligent. 
+            Pour chaque question, tu dois choisir la meilleure source d’information entres tes propres connaissances générales et les documents fournis ci-dessous.
+            Tu as également accès aux échanges que tu as eu précédement avec l'utilisateur, que nous appellerons ici le contexte. Cependant la question la plus importante reste la question actuelle. Tu ne répond pas aux questions précédentes
             Lis attentivement la question et, si l’information dans les documents est plus précise ou pertinente que tes connaissances, utilise les documents pour répondre. Sinon, utilise tes connaissances.
-            Voici la question:
-            {question}
+            Et voilà le contexte si vous avez déja parlez avant:
+            {context}
             Voici les documents:
             {documents}
+            Voici la question:
+            {question}
         """
     }
-    messages.insert(0,newChat)
-    response: ChatResponse = ollama_client.chat(model='cyber-model',messages=messages)
+    response: ChatResponse = ollama_client.chat(model='cyber-model',messages=[newChat])
     content = response['message']['content']
     save_chat(content=content,session_id=session_id)
     return {"content":content}
     
 @app.post("/chat/session")
-async def get_session_name(session_id: Annotated[str | None, Header()] = None):
+async def get_session_name(chat : ChatQuestion = None, session_id: Annotated[str | None, Header()] = None):
     if not session_id:
         raise HTTPException(status_code=500, detail="No Session ID given")
-    with Session(engine) as session:
-        statement = select(ChatMessage).where(ChatMessage.chatSessionId == session_id).order_by(ChatMessage.createdAt.asc()).offset(1).limit(1)
-        results = session.exec(statement)
-        for result in results:
-            chat_template={
-            "role":"user",
-            "content":f"""
-                Tu es un assistant utilisé pour des questions de cybersécurité.
-                Tu dois proposer un titre qui pourrait correspondre à une conversion commencant par une question.
-                Tu ne répondra que le titre qui correspond, sans préciser qu'il s'agit d'un titre
-                
-                Voici la question:
-                {result.message}            
-                """
-            }
-            response: ChatResponse = ollama_client.chat(model='cyber-model',messages=[chat_template])
-            title = response['message']['content']
-            save_title(title=title,session_id=session_id)
-            return {"content":title}
-        raise HTTPException(status_code=500, detail="Pas de message dans cette session")
+    if not chat:
+        raise HTTPException(status_code=500, detail="No question given")
+    chat_template={
+        "role":"user",
+        "content":f"""
+            Tu es un assistant utilisé pour des questions de cybersécurité.
+            Tu dois proposer un titre qui pourrait correspondre à une conversion commencant par une question.
+            Tu ne répondra que le titre qui correspond, sans préciser qu'il s'agit d'un titre
+            
+            Voici la question:
+            {chat.content}            
+            """
+    }
+    response: ChatResponse = ollama_client.chat(model='cyber-model',messages=[chat_template])
+    title = response['message']['content']
+    return {"content":title}
         
         
 

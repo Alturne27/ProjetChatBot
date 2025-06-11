@@ -1,0 +1,58 @@
+{
+  "pages": {
+    "/api/auth/[...nextauth]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/auth/[...nextauth]/route.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
+    ],
+    "/chatbot/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/chatbot/layout.css",
+      "static/chunks/app/chatbot/layout.js"
+    ],
+    "/chatbot/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/chatbot/page.css",
+      "static/chunks/app/chatbot/page.js"
+    ],
+    "/api/chatSession/findAll/[userId]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/chatSession/findAll/[userId]/route.js"
+    ],
+    "/api/chatSession/create/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/chatSession/create/route.js"
+    ],
+    "/api/chatMessage/create/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/chatMessage/create/route.js"
+    ],
+    "/api/test/chat/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/test/chat/route.js"
+    ],
+    "/api/chatSession/delete/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/chatSession/delete/[id]/route.js"
+    ]
+  }
+}

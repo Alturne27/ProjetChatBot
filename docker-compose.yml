@@ -1,16 +1,37 @@
 services :
-  postgres:
-    image: postgres:latest
-    container_name: postgres
+  chatbot-front:
+    container_name: chatbot-front
+    build:
+      context: ./front-build/
+      dockerfile: dev.Dockerfile
+    env_file:
+      - ./front-build/.env.local
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - WDS_SOCKET_HOST=127.0.0.1
+
+    volumes:
+      - ./front-build:/app
+      - chatbot_front_node_module:/app/node_modules
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - ollama-docker
+    depends_on:
+      - chatbot-db
+
+  chatbot-db:
+    container_name: chatbot-db
+    image: postgres
+
+    env_file:
+      - ./db-build/.env.database
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: data
-      POSTGRES_DB: PGDB
     volumes:
-      - ./postgre-build:/docker-entrypoint-initdb.d
-      - ./pgdata:/var/lib/postgresql/data
+     - ./pgdata:/var/lib/postgresql/data
     networks:
       - ollama-docker
     restart: unless-stopped
@@ -43,11 +64,10 @@ services :
   api:
     container_name : api
     build:
-      dockerfile: ./api-build/Dockerfile
-    environment:
-      DB_USER: user
-      DB_PASSWORD: data
-      DB_NAME: PGDB
+      context: ./api-build/
+      dockerfile: Dockerfile
+    env_file:
+      - ./api-build/.env.database
     ports:
       - 80:80
     volumes:
@@ -57,8 +77,10 @@ services :
     networks:
       - ollama-docker
     tty : true
-
     restart: always
+    depends_on:
+      - chatbot-front
+      - chatbot-db
     
   easy-dataset:
     image: ghcr.io/conardli/easy-dataset
@@ -75,3 +97,6 @@ services :
 networks:
   ollama-docker:
     driver: bridge
+
+volumes:
+  chatbot_front_node_module:

@@ -1,0 +1,8 @@
+{
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/chatSession/create/route": "app/api/chatSession/create/route.js",
+  "/api/chatSession/findAll/[userId]/route": "app/api/chatSession/findAll/[userId]/route.js",
+  "/api/chatMessage/create/route": "app/api/chatMessage/create/route.js",
+  "/chatbot/page": "app/chatbot/page.js"
+}
